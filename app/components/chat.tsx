@@ -427,16 +427,23 @@ export function Chat() {
   const [hitBottom, setHitBottom] = useState(true);
   const isMobileScreen = useMobileScreen();
   const websiteConfigStore = useWebsiteConfigStore();
-  const { chatPageSubTitle } = websiteConfigStore;
+  const { chatPageSubTitle, logoUrl } = websiteConfigStore;
   const navigate = useNavigate();
 
   const authStore = useAuthStore();
+
+  // useEffect(() => {
+  //   console.log('logoUrl changed:', logoUrl)
+  // }, [logoUrl])
 
   useEffect(() => {
     const isLoggedIn = authStore.username != null && authStore.username != "";
     console.log("isLoggedIn", isLoggedIn);
     if (!isLoggedIn) {
-      navigate("/login");
+      if (authStore.token) {
+        authStore.removeToken();
+      }
+      navigate(Path.Login);
     }
   }, [authStore, navigate]);
 
@@ -505,7 +512,9 @@ export function Chat() {
     if (userInput.trim() === "") return;
     setIsLoading(true);
     chatStore
-      .onUserInput(userInput, websiteConfigStore, authStore)
+      .onUserInput(userInput, websiteConfigStore, authStore, () =>
+        navigate(Path.Login),
+      )
       .then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
     setUserInput("");
@@ -609,7 +618,9 @@ export function Chat() {
     const content = session.messages[userIndex].content;
     deleteMessage(userIndex);
     chatStore
-      .onUserInput(content, websiteConfigStore, authStore)
+      .onUserInput(content, websiteConfigStore, authStore, () =>
+        navigate(Path.Login),
+      )
       .then(() => setIsLoading(false));
     inputRef.current?.focus();
   };
@@ -631,6 +642,22 @@ export function Chat() {
     }
     context.push(copiedHello);
   }
+
+  useEffect(() => {
+    const message =
+      session.messages.length > 0
+        ? session.messages.at(session.messages.length - 1)
+        : null;
+    if (!message) {
+      return;
+    }
+    if (message.content === Locale.Error.Unauthorized) {
+      if (authStore.token) {
+        console.log("change the last message");
+        message.content = Locale.Error.Login;
+      }
+    }
+  }, []);
 
   // clear context index = context length + index in messages
   const clearContextIndex =
@@ -794,9 +821,9 @@ export function Chat() {
                 <div className={styles["chat-message-container"]}>
                   <div className={styles["chat-message-avatar"]}>
                     {message.role === "user" ? (
-                      <Avatar avatar={config.avatar} />
+                      <Avatar avatar={config.avatar} logoUrl={logoUrl} />
                     ) : (
-                      <MaskAvatar mask={session.mask} />
+                      <MaskAvatar mask={session.mask} logoUrl={logoUrl} />
                     )}
                   </div>
                   {showTyping && (

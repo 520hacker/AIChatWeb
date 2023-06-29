@@ -4,6 +4,7 @@ const cn = {
   WIP: "该功能仍在开发中……",
   Error: {
     Unauthorized: "登录信息已过期，请前往[登录页](/#/login)",
+    Login: "您已登录，请点击上方「重试」按钮",
   },
   Sidebar: {
     Title: "公告",
@@ -86,9 +87,9 @@ const cn = {
     Title: "登录",
     SubTitle: "登录后可跟AI交流",
     Username: {
-      Title: "用户名",
+      Title: "用户名或邮箱",
       SubTitle: "",
-      Placeholder: "请输入用户名",
+      Placeholder: "请输入用户名或邮箱",
     },
     Password: {
       Title: "密码",
@@ -175,25 +176,27 @@ const cn = {
     Username: "账号",
     Tokens: {
       Title: "tokens",
-      SubTitle: "剩余tokens数量",
+      SubTitle: "tokens数量",
     },
     ChatCount: {
       Title: "询问次数",
-      SubTitle: "剩余询问次数（GPT3.5等）",
+      SubTitle: "询问次数（GPT3.5等）",
     },
     AdvanceChatCount: {
       Title: "询问次数（GPT4）",
-      SubTitle: "聊天询问次数（GPT4）",
+      SubTitle: "询问次数（GPT4）",
     },
     DrawCount: {
       Title: "绘图次数",
-      SubTitle: "剩余绘图次数",
+      SubTitle: "绘图次数",
     },
     Actions: {
       Close: "关闭",
       Pricing: "购买套餐",
+      Order: "订单中心",
       GoToBalanceList: "更多",
       ConsultAdministrator: "请咨询站长",
+      All: "所有套餐",
     },
     BalanceItem: {
       Title: "套餐类型",
@@ -206,7 +209,7 @@ const cn = {
       },
     },
     ExpireList: {
-      Title: "过期时间",
+      Title: "到期时间",
       SubTitle: "",
     },
   },
@@ -216,10 +219,55 @@ const cn = {
     Actions: {
       Close: "关闭",
       Buy: " 购 买 ",
+      Order: "订单中心",
     },
     NoPackage: "暂无可用套餐",
-    Loading: "套餐加载中……",
+    Loading: "请稍候……",
+    PleaseLogin: "请先登录",
     ConsultAdministrator: "请咨询站长",
+    BuyFailedCause: "套餐购买失败！原因：",
+    TOO_FREQUENCILY: "操作过于频繁，请稍后再试",
+    CREATE_ORDER_FAILED: "创建订单失败",
+  },
+  PayPage: {
+    PaidSuccess: "支付成功",
+    Actions: {
+      Close: "关闭",
+    },
+  },
+  BalancePage: {
+    Title: "已购套餐",
+    NoBalance: "您尚未购买任何套餐",
+    Loading: "请稍候……",
+    Actions: {
+      Close: "关闭",
+      Pricing: "购买套餐",
+      Order: "订单中心",
+      Profile: "个人中心",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
+    },
+  },
+  OrderPage: {
+    Title: "订单中心",
+    NoOrder: "暂无订单",
+    Loading: "请稍候……",
+    StateError: "状态错误！",
+    CancelFailedForStateError: "当前状态下无法取消",
+    CancelSuccess: "订单取消成功",
+    CancelFailure: "订单取消失败",
+    TryAgainLaster: "操作失败，请稍候重试",
+    PleaseWaitForDataSync:
+      "数据可能延迟，支付成功请在10分钟后查看订单状态，请勿重复支付",
+    Actions: {
+      Pay: "支付",
+      Cancel: "取消",
+      Pricing: "购买套餐",
+      Profile: "个人中心",
+      Copy: "复制",
+      Refresh: "刷新",
+      Refreshing: "刷新中……",
+    },
   },
   Settings: {
     Title: "设置",

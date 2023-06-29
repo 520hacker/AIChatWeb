@@ -6,18 +6,21 @@ import { IconButton } from "./button";
 import SettingsIcon from "../icons/settings.svg";
 import GithubIcon from "../icons/github.svg";
 import BookOpenIcon from "../icons/book-open.svg";
-import LoginIcon from "../icons/login.svg";
-import ChatGptIcon from "../icons/chatgpt.svg";
+import NoticeIcon from "../icons/notice.svg";
+// import LoginIcon from "../icons/login.svg";
+// import ChatGptIcon from "../icons/chatgpt.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import AddIcon from "../icons/add.svg";
 import CloseIcon from "../icons/close.svg";
 import MaskIcon from "../icons/mask.svg";
 import PluginIcon from "../icons/plugin.svg";
+import NextImage from "next/image";
 
 import Locale from "../locales";
 
 import { Modal } from "./ui-lib";
 
-import { useAppConfig, useChatStore } from "../store";
+import { useAppConfig, useAuthStore, useChatStore } from "../store";
 import { useWebsiteConfigStore, useNoticeConfigStore } from "../store";
 
 import {
@@ -107,7 +110,11 @@ function useDragSideBar() {
   };
 }
 
-export function NoticeModel(props: { onClose: () => void }) {
+export function NoticeModel(props: {
+  title: string;
+  content: string;
+  onClose: () => void;
+}) {
   const noticeConfigStore = useNoticeConfigStore();
 
   return (
@@ -134,11 +141,11 @@ export function NoticeModel(props: { onClose: () => void }) {
               lineHeight: "40px",
               marginBottom: "10px",
             }}
-            dangerouslySetInnerHTML={{ __html: noticeConfigStore.title || "" }}
+            dangerouslySetInnerHTML={{ __html: props.title || "" }}
           ></div>
           <div
             dangerouslySetInnerHTML={{
-              __html: noticeConfigStore.content || "",
+              __html: props.content || "",
             }}
           ></div>
         </div>
@@ -147,7 +154,15 @@ export function NoticeModel(props: { onClose: () => void }) {
   );
 }
 
-export function SideBar(props: { className?: string }) {
+export function SideBar(props: {
+  className?: string;
+  noticeShow: boolean;
+  noticeTitle: string;
+  noticeContent: string;
+  setNoticeShow: (show: boolean) => void;
+  logoLoading: boolean;
+  logoUrl?: string;
+}) {
   const chatStore = useChatStore();
 
   // drag side bar
@@ -159,16 +174,9 @@ export function SideBar(props: { className?: string }) {
 
   const websiteConfigStore = useWebsiteConfigStore();
   const noticeConfigStore = useNoticeConfigStore();
-  const [noticeShow, setNoticeShow] = useState(false);
-  function showNotice() {
-    console.log("showNotice");
-    setNoticeShow(true);
-  }
-  useEffect(() => {
-    if (noticeConfigStore.splash) {
-      showNotice();
-    }
-  }, [noticeConfigStore]);
+
+  const logoLoading = props.logoLoading;
+  const logoUrl = props.logoUrl;
 
   return (
     <div
@@ -177,14 +185,27 @@ export function SideBar(props: { className?: string }) {
       }`}
     >
       <div className={styles["sidebar-header"]}>
-        <div className={styles["sidebar-title"]}>
-          {websiteConfigStore.title || "AI Chat"}
-        </div>
-        <div className={styles["sidebar-sub-title"]}>
-          {websiteConfigStore.subTitle || "Build your own AI assistant."}
-        </div>
+        <div
+          className={styles["sidebar-title"]}
+          dangerouslySetInnerHTML={{
+            __html: websiteConfigStore.mainTitle || "AI Chat",
+          }}
+        ></div>
+        <div
+          className={styles["sidebar-sub-title"]}
+          dangerouslySetInnerHTML={{
+            __html:
+              websiteConfigStore.subTitle || "Build your own AI assistant.",
+          }}
+        ></div>
         <div className={styles["sidebar-logo"] + " no-dark"}>
-          <ChatGptIcon />
+          {logoLoading ? (
+            <></>
+          ) : !logoUrl ? (
+            <NextImage src={ChatBotIcon.src} width={44} height={44} alt="bot" />
+          ) : (
+            <img src={logoUrl} width={44} height={44} />
+          )}
         </div>
       </div>
 
@@ -233,19 +254,19 @@ export function SideBar(props: { className?: string }) {
               <IconButton icon={<SettingsIcon />} shadow />
             </Link>
           </div>
-          <div className={styles["sidebar-action"]}>
-            <IconButton
-              icon={<BookOpenIcon />}
-              onClick={() => {
-                if (noticeConfigStore.show) {
-                  showNotice();
-                } else {
-                  showToast(Locale.Home.NoNotice);
-                }
-              }}
-              shadow
-            />
-          </div>
+          {props.noticeTitle || props.noticeContent ? (
+            <div className={styles["sidebar-action"]}>
+              <IconButton
+                icon={<NoticeIcon />}
+                onClick={() => {
+                  props.setNoticeShow(true);
+                }}
+                shadow
+              />
+            </div>
+          ) : (
+            <></>
+          )}
           {!websiteConfigStore.hideGithubIcon ? (
             <div className={styles["sidebar-action"]}>
               <a href={REPO_URL} target="_blank">
@@ -278,7 +299,13 @@ export function SideBar(props: { className?: string }) {
         onMouseDown={(e) => onDragMouseDown(e as any)}
       ></div>
 
-      {noticeShow && <NoticeModel onClose={() => setNoticeShow(false)} />}
+      {props.noticeShow && (
+        <NoticeModel
+          title={props.noticeTitle}
+          content={props.noticeContent}
+          onClose={() => props.setNoticeShow(false)}
+        />
+      )}
     </div>
   );
 }

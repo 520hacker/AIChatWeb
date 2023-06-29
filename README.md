@@ -8,8 +8,6 @@
 ·
 <a href="#演示地址">演示地址</a>
 ·
-<a href="#项目优势">项目优势</a>
-·
 <a href="#知识星球优秀案例">优秀案例</a>
 </div>
 
@@ -184,11 +182,9 @@ Super Admin Password is valid.
 
 ### 加入QQ交流群、微信群获取更多内容
 
-QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7IInTMfRPnjFF2w5biv9&jump_from=webapi&authKey=xwz1vwqsxZvdsYVqbs8jhUz85CnwKAnNq2MLmfAewdOvtgQrX99I1i3DpNx4AnM5" target="_blank">437863036</a>
-
 <img src="./docs/images/QQ.jpeg" width="400px" alt="QQ" style="display: inline-block" />
 
-<img src="./docs/images/wechat4.jpg" width="400px" alt="wechat" style="display: inline-block" />
+<img src="./docs/images/wechat3.jpg" width="400px" alt="wechat" style="display: inline-block" />
 
 ## 知识星球
 
@@ -218,14 +214,6 @@ QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7
 网址：[https://neu.zxyt.top/](https://neu.zxyt.top/)
 用户：150+
 
-### AI Ultra
-网址：[https://chat.wzunjh.top/](https://chat.wzunjh.top/)
-用户：1100+
-
-### AI佩奇
-网址：[https://candy666.top/](https://candy666.top/)
-用户：~1000
-
 ### pro版本规划路线
 
 1. 对接支付系统 Pay
@@ -234,6 +222,3 @@ QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Z-vLdIURiLJW7
 4. 对接发卡平台
 5. 服务端消息保存（Chat Saved by Server）
 6. 多模型支持（Claude、Bard……）
-
-特别提醒：此项目应仅限于学习和交流使用，如若用于商业用途，请确保符合当地法律法规
-

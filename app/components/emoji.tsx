@@ -4,10 +4,11 @@ import EmojiPicker, {
   Theme as EmojiTheme,
 } from "emoji-picker-react";
 
-import { ModelType } from "../store";
+import { ModelType, useWebsiteConfigStore } from "../store";
 
-import BotIcon from "../icons/bot.svg";
-import BlackBotIcon from "../icons/black-bot.svg";
+import BotIcon from "../icons/ai-chat-bot.png";
+import BlackBotIcon from "../icons/ai-chat-bot.png"; // 暂时都一样
+import NextImage from "next/image";
 
 export function getEmojiUrl(unified: string, style: EmojiStyle) {
   return `https://cdn.staticfile.org/emoji-datasource-apple/14.0.0/img/${style}/64/${unified}.png`;
@@ -28,14 +29,34 @@ export function AvatarPicker(props: {
   );
 }
 
-export function Avatar(props: { model?: ModelType; avatar?: string }) {
+export function Avatar(props: {
+  model?: ModelType;
+  avatar?: string;
+  logoUrl?: string;
+}) {
+  // console.log('refresh Avatar', props.logoUrl)
   if (props.model) {
+    const logoUrl = props.logoUrl;
     return (
       <div className="no-dark">
         {props.model?.startsWith("gpt-4") ? (
-          <BlackBotIcon className="user-avatar" />
+          <NextImage
+            src={BlackBotIcon.src}
+            width={30}
+            height={30}
+            alt="bot"
+            className="user-avatar"
+          />
+        ) : logoUrl !== undefined && logoUrl !== null && logoUrl !== "" ? (
+          <img src={logoUrl} width={30} height={30} />
         ) : (
-          <BotIcon className="user-avatar" />
+          <NextImage
+            src={BotIcon.src}
+            width={30}
+            height={30}
+            alt="bot"
+            className="user-avatar"
+          />
         )}
       </div>
     );

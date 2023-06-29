@@ -2,12 +2,13 @@
 
 require("../polyfill");
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import styles from "./home.module.scss";
 
-import BotIcon from "../icons/bot.svg";
+import ChatBotIcon from "../icons/ai-chat-bot.png";
 import LoadingIcon from "../icons/three-dots.svg";
+import NextImage from "next/image";
 
 import { getCSSVar, useMobileScreen } from "../utils";
 
@@ -23,53 +24,89 @@ import {
 } from "react-router-dom";
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
-import {
-  useWebsiteConfigStore,
-  useNoticeConfigStore,
-  useAuthStore,
-  BOT_HELLO,
-} from "../store";
+import { useWebsiteConfigStore, useAuthStore, BOT_HELLO } from "../store";
 
-export function Loading(props: { noLogo?: boolean }) {
+export function Loading(props: {
+  noLogo?: boolean;
+  logoLoading: boolean;
+  logoUrl?: string;
+}) {
+  const logoLoading = props.logoLoading;
+  const logoUrl = props.logoUrl;
+  const noLogo = props.noLogo;
+  console.log("Loading logoUrl", noLogo, logoUrl);
   return (
     <div className={styles["loading-content"] + " no-dark"}>
-      {!props.noLogo && <BotIcon />}
+      {!props.noLogo && (
+        <NextImage
+          src={ChatBotIcon.src}
+          width={30}
+          height={30}
+          alt="bot"
+          className="user-avatar"
+        />
+      )}
       <LoadingIcon />
     </div>
   );
 }
 
 const Login = dynamic(async () => (await import("./login")).Login, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Register = dynamic(async () => (await import("./register")).Register, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Profile = dynamic(async () => (await import("./profile")).Profile, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Pricing = dynamic(async () => (await import("./pricing")).Pricing, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
+});
+
+const Pay = dynamic(async () => (await import("./pay")).Pay, {
+  loading: () => <Loading noLogo logoLoading />,
+});
+
+const Balance = dynamic(async () => (await import("./balance")).Balance, {
+  loading: () => <Loading noLogo logoLoading />,
+});
+
+const Order = dynamic(async () => (await import("./order")).Order, {
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const Chat = dynamic(async () => (await import("./chat")).Chat, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const NewChat = dynamic(async () => (await import("./new-chat")).NewChat, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
 
 const MaskPage = dynamic(async () => (await import("./mask")).MaskPage, {
-  loading: () => <Loading noLogo />,
+  loading: () => <Loading noLogo logoLoading />,
 });
+
+export interface NoticeConfig {
+  show: boolean;
+  splash: boolean;
+  title: string;
+  content: string;
+}
+export interface NoticeConfigData {
+  noticeContent: NoticeConfig;
+}
+
+import { Response } from "../api/common";
+export type NoticeConfigResponse = Response<NoticeConfigData>;
 
 export function useSwitchTheme() {
   const config = useAppConfig();
@@ -125,7 +162,35 @@ const loadAsyncGoogleFont = () => {
   document.head.appendChild(linkEl);
 };
 
-function Screen() {
+interface LogoInfo {
+  uuid: string;
+  url?: string;
+  mimeType: string;
+}
+export interface LogoInfoResponse {
+  code: number;
+  message: string;
+  data: LogoInfo;
+}
+
+function setFavicon(url: string, mimeType: string) {
+  const link = document.createElement("link");
+  link.rel = "shortcut icon";
+  link.type = "image/svg+xml";
+  link.href = url;
+  const head = document.querySelector("head");
+  if (head == null) {
+    console.error("head is null");
+    return;
+  }
+  const existingLink = document.querySelector('head link[rel="shortcut icon"]');
+  if (existingLink) {
+    head.removeChild(existingLink);
+  }
+  head.appendChild(link);
+}
+
+function Screen(props: { logoLoading: boolean; logoUrl?: string }) {
   const config = useAppConfig();
   const location = useLocation();
   const isHome = location.pathname === Path.Home;
@@ -140,14 +205,6 @@ function Screen() {
     fetchWebsiteConfig();
   }, [fetchWebsiteConfig]);
 
-  const authStore = useAuthStore();
-  const { fetchNoticeConfig } = useNoticeConfigStore();
-  useEffect(() => {
-    if (authStore.token) {
-      fetchNoticeConfig(authStore.token);
-    }
-  }, [authStore.token, fetchNoticeConfig]);
-
   const { botHello } = useWebsiteConfigStore();
   useEffect(() => {
     if (botHello) {
@@ -155,6 +212,39 @@ function Screen() {
       BOT_HELLO.content = botHello;
     }
   }, [botHello]);
+
+  const [noticeShow, setNoticeShow] = useState(false);
+  const [noticeTitle, setNoticeTitle] = useState("");
+  const [noticeContent, setNoticeContent] = useState("");
+  useEffect(() => {
+    fetch("/api/globalConfig/notice", {
+      method: "get",
+    })
+      .then((res) => res.json())
+      .then((res: NoticeConfigResponse) => {
+        console.log("[GlobalConfig] got notice config from server", res);
+        const notice = res.data.noticeContent;
+        if (notice.show) {
+          setNoticeTitle(notice.title);
+          setNoticeContent(notice.content);
+          if (notice.splash) {
+            setNoticeShow(true);
+          }
+        }
+      })
+      .catch(() => {
+        console.error("[GlobalConfig] failed to fetch config");
+      })
+      .finally(() => {
+        // fetchState = 2;
+      });
+  }, []);
+
+  const logoLoading = props.logoLoading;
+  const logoUrl = props.logoUrl || "";
+  useEffect(() => {
+    setFavicon(logoUrl, "");
+  }, [logoUrl]);
 
   return (
     <div
@@ -167,7 +257,15 @@ function Screen() {
         }`
       }
     >
-      <SideBar className={isHome ? styles["sidebar-show"] : ""} />
+      <SideBar
+        className={isHome ? styles["sidebar-show"] : ""}
+        noticeShow={noticeShow}
+        noticeTitle={noticeTitle}
+        noticeContent={noticeContent}
+        setNoticeShow={setNoticeShow}
+        logoLoading={logoLoading}
+        logoUrl={logoUrl}
+      />
 
       <div className={styles["window-content"]} id={SlotID.AppBody}>
         <Routes>
@@ -180,6 +278,9 @@ function Screen() {
           <Route path={Path.Register} element={<Register />} />
           <Route path={Path.Profile} element={<Profile />} />
           <Route path={Path.Pricing} element={<Pricing />} />
+          <Route path={Path.Pay} element={<Pay />} />
+          <Route path={Path.Balance} element={<Balance />} />
+          <Route path={Path.Order} element={<Order />} />
         </Routes>
       </div>
     </div>
@@ -189,14 +290,58 @@ function Screen() {
 export function Home() {
   useSwitchTheme();
 
+  const authStore = useAuthStore();
+  const [logoLoading, setLogoLoading] = useState(false);
+  const { fetchWebsiteConfig, logoUrl } = useWebsiteConfigStore();
+  useEffect(() => {
+    fetchWebsiteConfig();
+  }, [fetchWebsiteConfig]);
+
+  // const [logoInfo, setLogoInfo] = useState({
+  //   uuid: false,
+  //   url: "",
+  //   mimeType: "",
+  // } as any as LogoInfo);
+  // useEffect(() => {
+  //   setLogoLoading(true);
+  //   // console.log('fetching logo info')
+  //   fetch("/api/file/logoInfo", {
+  //     method: "get",
+  //     headers: {
+  //       Authorization: "Bearer " + authStore.token,
+  //     },
+  //   })
+  //     .then(async (resp) => {
+  //       const json = (await resp.json()) as LogoInfoResponse;
+  //       // console.log('fetched logo info')
+  //       // console.log("json", json);
+  //       const info = json.data;
+  //       if (info.uuid !== null) {
+  //         info.url = "/api/file/" + info.uuid;
+  //         setLogoInfo({
+  //           uuid: info.uuid,
+  //           url: info.url,
+  //           mimeType: info.mimeType
+  //         });
+  //         setFavicon(info.url, info.mimeType);
+  //         console.log('logo set new', info)
+  //       }
+  //     })
+  //     .finally(() => {
+  //       setLogoLoading(false);
+  //     });
+  // }, [authStore.token]);
+
   if (!useHasHydrated()) {
-    return <Loading />;
+    return (
+      <Loading noLogo={false} logoLoading={logoLoading} logoUrl={logoUrl} />
+    );
   }
 
   return (
     <ErrorBoundary>
       <Router>
-        <Screen />
+        <Screen logoLoading={logoLoading} logoUrl={logoUrl} />
       </Router>
     </ErrorBoundary>
   );

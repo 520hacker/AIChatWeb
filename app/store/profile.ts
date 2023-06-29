@@ -15,7 +15,7 @@ export interface ProfileStore {
   fetchProfile: (token: string) => Promise<any>;
 }
 
-let fetchState = 0; // 0 not fetch, 1 fetching, 2 done
+// let fetchState = 0; // 0 not fetch, 1 fetching, 2 done
 
 export const useProfileStore = create<ProfileStore>()(
   persist(
@@ -38,20 +38,24 @@ export const useProfileStore = create<ProfileStore>()(
         })
           .then((res) => res.json())
           .then((res: ProfileResponse) => {
-            console.log("[Balance] got balance from server", res);
+            console.log("[Profile] got profile from server", res);
             const data = res.data;
-            set(() => ({
-              id: data.id,
-              tokens: data.tokens,
-              chatCount: data.chatCount,
-              advanceChatCount: data.advancedChatCount,
-              drawCount: data.drawCount,
-              balances: data.balances || [],
-            }));
+            if (res.data) {
+              set(() => ({
+                id: data.id,
+                balances: data.balances || [],
+              }));
+            } else {
+              console.log("[Profile] set id = 0");
+              set(() => ({
+                id: 0,
+                balances: [],
+              }));
+            }
             return res;
           })
           .catch(() => {
-            console.error("[Balance] failed to fetch config");
+            console.error("[Profile] failed to fetch profile");
           })
           .finally(() => {
             // fetchState = 2;
@@ -59,7 +63,7 @@ export const useProfileStore = create<ProfileStore>()(
       },
     }),
     {
-      name: StoreKey.Balance,
+      name: StoreKey.Profile,
       version: 1,
     },
   ),
