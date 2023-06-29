@@ -1,7 +1,7 @@
 <div align="center" style="margin-bottom: 10px;">
 <img src="./docs/images/icon.svg" alt="预览"/>
 
-<h1 align="center">AI Chat Web</h1>
+<h1 align="center">AI Chat Web pro 0.3.2 clone</h1>
 <a href="#一键部署">一键部署</a>
 ·
 <a href="https://www.nanjiren.online" target="_blank">官 网</a>
